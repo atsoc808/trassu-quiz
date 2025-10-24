@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Trassu Quiz + Stock</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="manifest" href="manifest.json" />
+  </head>
+  <body>
+    <!-- Tela Inicial -->
+    <div id="home-screen" class="screen active">
+      <div class="half top">
+        <button id="start-btn">Começar Quiz</button>
+      </div>
+      <div class="half bottom">
+        <button id="stock-btn">Ver Stock Algarve Classic Festival</button>
+      </div>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="quiz-screen" class="screen">
+      <div id="question-container">
+        <img id="question-img" src="" alt="Pergunta" />
+        <p id="question-text"></p>
+        <div id="options-grid"></div>
+
+        <div id="timer-wrapper">
+          <div id="timer-bar"><div id="timer-fill"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Email Popup -->
+    <div id="email-popup" class="screen">
+      <h2>Parabéns!</h2>
+      <p id="result-message"></p>
+      <p>Insira seu nome e email para veres a tua posição geral:</p>
+      <input type="text" id="player-name" placeholder="Nome" />
+      <input type="email" id="player-email" placeholder="Email" />
+      <button id="submit-email">Enviar</button>
+    </div>
+
+    <!-- Leaderboard -->
+    <div id="leaderboard-screen" class="screen">
+      <h2>Leaderboard Top 20</h2>
+      <ul id="leaderboard-list"></ul>
+      <button id="export-btn">Exportar CSV</button>
+      <button id="restart-btn">Voltar ao início</button>
+    </div>
+
+    <!-- Stock Screen -->
+    <div id="stock-screen" class="screen">
+      <div id="stock-grid"></div>
+      <button id="back-home">Voltar ao início</button>
+    </div>
+
+    <!-- Modal Zoom -->
+    <div id="modal" class="modal">
+      <span id="close-modal" class="close">&times;</span>
+      <img class="modal-content" id="modal-img" />
+      <div id="modal-caption"></div>
+    </div>
+
+    <!-- Feedback (dinâmico) container -->
+    <div id="feedback-layer" aria-hidden="true"></div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
