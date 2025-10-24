@@ -39,6 +39,7 @@ li {
   justify-content: center;
   align-items: center;
   height: 50%;
+  flex-direction: column;
 }
 .half.top {
   background: var(--bg);
@@ -62,6 +63,11 @@ li {
 .half.bottom button {
   background: var(--white);
   color: var(--green-dark);
+}
+
+.trassu-logo {
+  width: 20%;
+  margin-bottom: 50px;
 }
 
 /* STOCK GRID */
