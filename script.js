@@ -8,7 +8,7 @@ const stockCars = [
   { name: "Ferrari 296 GT3", img: "images/296GT3.png" },
   { name: "Mercedes-Benz 300 SL", img: "images/300SL.png" },
   { name: "Porsche 934", img: "images/934.png" },
-  { name: "F1", img: "images/F1.png" },
+  { name: "Formula 1", img: "images/F1.png" },
   { name: "Ferrari F40", img: "images/F40.png" }, // Atenção: O F40 está duplicado, um com .jpg e outro com .png
   { name: "Porsche GT3 RS", img: "images/GT3RS.png" },
   { name: "Ford GT40", img: "images/GT40.png" },
