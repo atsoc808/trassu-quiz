@@ -4,6 +4,7 @@ const feedbackDelay = 1200; // tempo (ms) para mostrar feedback antes de próxim
 
 /* ========= STOCK ========= */
 const stockCars = [
+  { name: "Custom car - order yours!", img: "images/custom-car.png" },
   { name: "BMW 3.0 CSL", img: "images/3.0CSL.png" },
   { name: "Ferrari 296 GT3", img: "images/296GT3.png" },
   { name: "Mercedes-Benz 300 SL", img: "images/300SL.png" },
@@ -17,7 +18,7 @@ const stockCars = [
   { name: "Nissan R34 GT-R", img: "images/R34.png" },
   { name: "Toyota Supra", img: "images/Supra.png" },
   { name: "Alfa Romeo TZ2", img: "images/TZ2.png" },
-  { name: "Dodge Viper", img: "images/Viper.png" },
+  { name: "Dodge Viper", img: "images/Viper.png" }
 ];
 
 /* ========= QUIZ QUESTIONS ========= */
