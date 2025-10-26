@@ -2,7 +2,17 @@
 const totalTimePerQuestion = 20; // seconds — altera aqui quando quiseres
 const feedbackDelay = 2500; // tempo (ms) para mostrar feedback antes de próxima pergunta
 const feedbackVisibleTime = 2500; // quanto tempo o popup fica visível (ms)
-const emailInactivityDelay = 60000; // 1 minuto em ms
+const emailPopupTimeout = 60000; // 1 minuto para voltar ao home se não houver interação
+
+/* ========= STATE ========= */
+let currentQuestion = 0;
+let score = 0;
+let totalTime = 0;
+let correctAnswers = 0;
+let questionStartTs = 0;
+let timeoutIdForAutoAdvance = null;
+let colorChangeTimeouts = [];
+let emailPopupIdleTimeout = null;
 
 /* ========= STOCK ========= */
 const stockCars = [
@@ -22,9 +32,31 @@ const stockCars = [
   { name: "Alfa Romeo TZ2", img: "images/TZ2.png" },
   { name: "Dodge Viper", img: "images/Viper.png" },
 ];
+/* ========= LANGUAGE ========= */
+let currentLanguage = "pt"; // default
 
-/* ========= QUIZ QUESTIONS ========= */
-const questions = [
+const messages = {
+  pt: {
+    noCorrect: "Obrigado por participar! Vais conseguir melhor da próxima 😄",
+    score: (correct, total) => `Acertaste ${correct} de ${total} perguntas!`,
+    fillNameEmail: "Preencha nome e email!",
+    timeout: "Ficaste sem tempo!",
+    points: "+{points} pontos",
+    timeSpent: "Demoraste {time}s",
+  },
+  en: {
+    noCorrect: "Thanks for playing! You'll do better next time 😄",
+    score: (correct, total) =>
+      `You got ${correct} out of ${total} questions right!`,
+    fillNameEmail: "Please fill name and email!",
+    timeout: "Time's up!",
+    points: "+{points} points",
+    timeSpent: "You spent {time}s",
+  },
+};
+
+/* ========= QUESTIONS ========= */
+const questionsPT = [
   {
     img: "images/GT40.png",
     question:
@@ -75,15 +107,51 @@ const questions = [
   },
 ];
 
-/* ========= STATE ========= */
-let currentQuestion = 0;
-let score = 0;
-let totalTime = 0;
-let correctAnswers = 0;
-let questionStartTs = 0;
-let timeoutIdForAutoAdvance = null;
-let colorChangeTimeouts = [];
-let emailInactivityTimeout = null; // nova variável para email popup
+const questionsEN = [
+  {
+    img: "images/GT40.png",
+    question:
+      "The Ford GT40 was created to beat which brand in the 24 Hours of Le Mans?",
+    options: ["Ferrari", "Porsche", "McLaren", "Jaguar"],
+    answer: 0,
+  },
+  {
+    img: "images/R34.png",
+    question: "The Nissan R34 GT-R became famous in which movie series?",
+    options: ["Transformers", "Need for Speed", "Fast & Furious", "James Bond"],
+    answer: 2,
+  },
+  {
+    img: "images/300SL.png",
+    question:
+      "What's the most recognizable design feature of the 1954 Mercedes-Benz 300 SL?",
+    options: [
+      "V12 mid-engine",
+      "Whitewall tires",
+      "Removable hardtop",
+      "Gullwing doors",
+    ],
+    answer: 3,
+  },
+  {
+    img: "images/F1.png",
+    question: "How many times has Formula 1 visited Portimão?",
+    options: ["1", "2", "3", "4"],
+    answer: 1,
+  },
+  {
+    img: "images/F40.png",
+    question: "In which decade was the Ferrari F40 launched?",
+    options: ["70's", "80's", "90's", "00's"],
+    answer: 1,
+  },
+  {
+    img: "images/Supra.png",
+    question: "Which country originally manufactured the Toyota Supra?",
+    options: ["USA", "Germany", "Japan", "South Korea"],
+    answer: 2,
+  },
+];
 
 /* ========= DOM ========= */
 const homeScreen = document.getElementById("home-screen");
@@ -112,6 +180,9 @@ const closeModal = document.getElementById("close-modal");
 
 const feedbackLayer = document.getElementById("feedback-layer");
 
+const langPT = document.getElementById("lang-pt");
+const langEN = document.getElementById("lang-en");
+
 /* ========= EVENTS ========= */
 document.getElementById("start-btn").addEventListener("click", startQuiz);
 document.getElementById("stock-btn").addEventListener("click", showStock);
@@ -126,12 +197,8 @@ document
   .getElementById("restart-btn")
   .addEventListener("click", () => location.reload());
 
-// Reset timer on user interaction with email popup
-playerNameInput.addEventListener("input", resetEmailInactivityTimer);
-playerEmailInput.addEventListener("input", resetEmailInactivityTimer);
-document
-  .getElementById("submit-email")
-  .addEventListener("click", resetEmailInactivityTimer);
+langPT.addEventListener("click", () => setLanguage("pt"));
+langEN.addEventListener("click", () => setLanguage("en"));
 
 /* ========= UTIL ========= */
 function showScreen(screen) {
@@ -140,21 +207,22 @@ function showScreen(screen) {
   );
   screen.classList.add("active");
 
-  // se o screen atual for emailPopup, inicia timer de inatividade
   if (screen === emailPopup) {
-    resetEmailInactivityTimer();
+    startEmailPopupIdleTimer();
   } else {
-    // cancela timer se mudar para outro screen
-    if (emailInactivityTimeout) clearTimeout(emailInactivityTimeout);
+    clearEmailPopupIdleTimer();
   }
 }
 
-/* Reset email inactivity timer */
-function resetEmailInactivityTimer() {
-  if (emailInactivityTimeout) clearTimeout(emailInactivityTimeout);
-  emailInactivityTimeout = setTimeout(() => {
-    showScreen(homeScreen);
-  }, emailInactivityDelay);
+function setLanguage(lang) {
+  currentLanguage = lang;
+  if (lang === "pt") {
+    langPT.classList.add("active");
+    langEN.classList.remove("active");
+  } else {
+    langEN.classList.add("active");
+    langPT.classList.remove("active");
+  }
 }
 
 /* ========= STOCK UI ========= */
@@ -176,7 +244,7 @@ function openModal(car) {
   modalCaption.textContent = car.name;
 }
 
-/* ========= FEEDBACK BUBBLE ========= */
+/* ========= FEEDBACK ========= */
 function showFeedbackBubble(lines = [], topOffsetPx = 180) {
   const wrapper = document.createElement("div");
   wrapper.className = "feedback-bubble";
@@ -186,21 +254,54 @@ function showFeedbackBubble(lines = [], topOffsetPx = 180) {
     .join("");
   feedbackLayer.appendChild(wrapper);
 
-  // aparecer imediatamente
-  requestAnimationFrame(() => {
-    wrapper.style.opacity = "1";
-  });
+  requestAnimationFrame(() => (wrapper.style.opacity = "1"));
 
-  // depois de feedbackVisibleTime, iniciar fade + float
   setTimeout(() => {
     wrapper.style.opacity = "0";
     wrapper.style.transform = "translate(-50%, -70px) scale(0.98)";
-    // remover após transição
-    setTimeout(() => {
-      wrapper.remove();
-    }, 800); // 0.8s = duração da transição
+    setTimeout(() => wrapper.remove(), 800);
   }, feedbackVisibleTime);
 }
+
+/* ========= LANGUAGE TOGGLE ========= */
+
+const startBtn = document.getElementById("start-btn");
+const stockBtn = document.getElementById("stock-btn");
+
+const textContent = {
+  pt: {
+    startQuiz: "Começar Quiz",
+    stock: "Ver Stock Algarve Classic Festival",
+  },
+  en: {
+    startQuiz: "Start Quiz",
+    stock: "See Algarve Classic Festival Stock",
+  },
+};
+
+// função para atualizar os textos da tela inicial
+function updateHomeTexts() {
+  startBtn.textContent = textContent[currentLanguage].startQuiz;
+  stockBtn.textContent = textContent[currentLanguage].stock;
+}
+
+// eventos de click nas bandeiras
+langPT.addEventListener("click", () => {
+  currentLanguage = "pt";
+  langPT.classList.add("active");
+  langEN.classList.remove("active");
+  updateHomeTexts();
+});
+
+langEN.addEventListener("click", () => {
+  currentLanguage = "en";
+  langEN.classList.add("active");
+  langPT.classList.remove("active");
+  updateHomeTexts();
+});
+
+// inicializa textos de acordo com a língua atual
+updateHomeTexts();
 
 /* ========= QUIZ ========= */
 function startQuiz() {
@@ -213,7 +314,6 @@ function startQuiz() {
 }
 
 function loadQuestion() {
-  // clear any color timeouts from previous question
   colorChangeTimeouts.forEach((t) => clearTimeout(t));
   colorChangeTimeouts = [];
   if (timeoutIdForAutoAdvance) {
@@ -221,22 +321,20 @@ function loadQuestion() {
     timeoutIdForAutoAdvance = null;
   }
 
-  if (currentQuestion >= questions.length) {
-    // final results message
-    if (correctAnswers === 0) {
-      resultMessage.textContent =
-        "Obrigado por participar! Vais conseguir melhor da próxima 😄";
-    } else {
-      resultMessage.textContent = `Acertaste ${correctAnswers} de ${questions.length} perguntas!`;
-    }
+  const qList = currentLanguage === "pt" ? questionsPT : questionsEN;
+
+  if (currentQuestion >= qList.length) {
+    resultMessage.textContent =
+      correctAnswers === 0
+        ? messages[currentLanguage].noCorrect
+        : messages[currentLanguage].score(correctAnswers, qList.length);
     showScreen(emailPopup);
     return;
   }
 
-  // fade out container then set content then fade in
   questionContainer.style.opacity = 0;
   setTimeout(() => {
-    const q = questions[currentQuestion];
+    const q = qList[currentQuestion];
     questionImg.src = q.img;
     questionText.textContent = q.question;
 
@@ -249,82 +347,72 @@ function loadQuestion() {
       optionsGrid.appendChild(btn);
     });
 
-    // reset timer fill and start smooth transition
     timerFill.style.transition = "none";
     timerFill.style.width = "100%";
-    // force reflow to apply transition change
     void timerFill.offsetWidth;
 
-    // prepare transition (smooth linear)
     timerFill.style.transition = `width ${totalTimePerQuestion}s linear`;
-    // set start timestamp
     questionStartTs = performance.now();
-    // start color schedule (at 1/3 and 2/3 fractions)
+
     const t1 = totalTimePerQuestion * 1000 * (1 / 3);
     const t2 = totalTimePerQuestion * 1000 * (2 / 3);
-    // initial color green
     timerFill.style.backgroundColor =
       getComputedStyle(document.documentElement).getPropertyValue("--green") ||
       "#28a745";
     colorChangeTimeouts.push(
-      setTimeout(() => {
-        timerFill.style.backgroundColor =
-          getComputedStyle(document.documentElement).getPropertyValue(
-            "--yellow"
-          ) || "#ffc107";
-      }, t2)
+      setTimeout(
+        () =>
+          (timerFill.style.backgroundColor =
+            getComputedStyle(document.documentElement).getPropertyValue(
+              "--yellow"
+            ) || "#ffc107"),
+        t2
+      )
     );
     colorChangeTimeouts.push(
-      setTimeout(() => {
-        timerFill.style.backgroundColor =
-          getComputedStyle(document.documentElement).getPropertyValue(
-            "--red"
-          ) || "#dc3545";
-      }, t1)
+      setTimeout(
+        () =>
+          (timerFill.style.backgroundColor =
+            getComputedStyle(document.documentElement).getPropertyValue(
+              "--red"
+            ) || "#dc3545"),
+        t1
+      )
     );
 
-    // trigger the smooth countdown to 0%
-    // small timeout to ensure transition is applied
-    setTimeout(() => {
-      timerFill.style.width = "0%";
-    }, 20);
+    setTimeout(() => (timerFill.style.width = "0%"), 20);
 
-    // set a timeout for when time runs out (fallback)
-    timeoutIdForAutoAdvance = setTimeout(() => {
-      // simulate selection with -1 (timeout)
-      selectOption(-1);
-    }, totalTimePerQuestion * 1000);
+    timeoutIdForAutoAdvance = setTimeout(
+      () => selectOption(-1),
+      totalTimePerQuestion * 1000
+    );
 
-    // fade IN
     questionContainer.style.opacity = 1;
   }, 450);
 }
 
 function selectOption(selected) {
-  // Cancel auto-advance timeout
   if (timeoutIdForAutoAdvance) {
     clearTimeout(timeoutIdForAutoAdvance);
     timeoutIdForAutoAdvance = null;
   }
 
-  // Parar barra de tempo
-  const computedWidth = getComputedStyle(timerFill).width; // pega a largura atual em px
-  timerFill.style.transition = "none"; // cancela animação
-  timerFill.style.width = computedWidth; // mantém barra no ponto atual
+  const computedWidth = getComputedStyle(timerFill).width;
+  timerFill.style.transition = "none";
+  timerFill.style.width = computedWidth;
 
   colorChangeTimeouts.forEach((t) => clearTimeout(t));
   colorChangeTimeouts = [];
 
-  // compute actual time spent
   const now = performance.now();
   let elapsedMs = now - (questionStartTs || now);
   if (elapsedMs < 0) elapsedMs = 0;
   const elapsedSec = Math.min(elapsedMs / 1000, totalTimePerQuestion);
-  const timeSpent = Math.round(elapsedSec * 10) / 10; // 1 decimal
+  totalTime += Math.round(elapsedSec * 10) / 10;
 
-  totalTime += timeSpent;
+  const qList = currentLanguage === "pt" ? questionsPT : questionsEN;
+  const q = qList[currentQuestion];
 
-  const q = questions[currentQuestion];
   const optionButtons = document.querySelectorAll(".option-btn");
   optionButtons.forEach((btn, i) => {
     btn.disabled = true;
@@ -334,48 +422,66 @@ function selectOption(selected) {
 
   let pointsGained = 0;
   if (selected === q.answer) {
-    // points: 10 + 1 * seconds remaining
     const secondsRemaining = Math.max(0, totalTimePerQuestion - elapsedSec);
-    const bonus = Math.floor(secondsRemaining); // consistent with original decision; could be decimal if desired
+    const bonus = Math.floor(secondsRemaining);
     pointsGained = 10 + bonus;
     score += pointsGained;
     correctAnswers++;
   }
 
-  // show animated feedback bubble in the middle-top of the quiz container
   const bubbleLines = [];
   if (pointsGained > 0) {
-    bubbleLines.push(`+${pointsGained} pontos`);
-    bubbleLines.push(`Demoraste ${timeSpent}s`);
+    bubbleLines.push(
+      messages[currentLanguage].points.replace("{points}", pointsGained)
+    );
+    bubbleLines.push(
+      messages[currentLanguage].timeSpent.replace(
+        "{time}",
+        Math.round(elapsedSec)
+      )
+    );
   } else {
-    // either wrong or timeout => show points (0) and time message
-    bubbleLines.push(`+0 pontos`);
-    // If exceeded time (approx equal totalTimePerQuestion)
-    if (elapsedSec >= totalTimePerQuestion - 0.05) {
-      bubbleLines.push(`Ficaste sem tempo!`);
-    } else {
-      bubbleLines.push(`Demoraste ${timeSpent}s`);
-    }
+    bubbleLines.push(messages[currentLanguage].points.replace("{points}", 0));
+    bubbleLines.push(
+      elapsedSec >= totalTimePerQuestion - 0.05
+        ? messages[currentLanguage].timeout
+        : messages[currentLanguage].timeSpent.replace(
+            "{time}",
+            Math.round(elapsedSec)
+          )
+    );
   }
-  // show visual feedback (topOffsetPx tuned to display near question)
   showFeedbackBubble(bubbleLines, 160);
 
-  // wait feedbackDelay then next question
   setTimeout(() => {
     currentQuestion++;
-    // Reset timerFill styles quickly for the next question
     timerFill.style.transition = "none";
     timerFill.style.width = "100%";
-    // proceed
     loadQuestion();
   }, feedbackDelay);
+}
+
+/* ========= EMAIL POPUP IDLE TIMER ========= */
+function startEmailPopupIdleTimer() {
+  clearEmailPopupIdleTimer();
+  emailPopupIdleTimeout = setTimeout(() => {
+    showScreen(homeScreen);
+  }, emailPopupTimeout);
+  emailPopup.addEventListener("mousemove", clearEmailPopupIdleTimer);
+  emailPopup.addEventListener("keydown", clearEmailPopupIdleTimer);
+  emailPopup.addEventListener("click", clearEmailPopupIdleTimer);
+}
+
+function clearEmailPopupIdleTimer() {
+  if (emailPopupIdleTimeout) clearTimeout(emailPopupIdleTimeout);
+  emailPopupIdleTimeout = null;
 }
 
 /* ========= EMAIL & LEADERBOARD ========= */
 function submitEmail() {
   const name = playerNameInput.value.trim();
   const email = playerEmailInput.value.trim();
-  if (!name || !email) return alert("Preencha nome e email!");
+  if (!name || !email) return alert(messages[currentLanguage].fillNameEmail);
 
   const leaderboard = JSON.parse(localStorage.getItem("leaderboard") || "[]");
   leaderboard.push({ name, email, score, totalTime });
