@@ -10,9 +10,27 @@
   <body>
     <!-- Tela Inicial -->
     <div id="home-screen" class="screen active">
+      <div
+        class="language-toggle"
+        style="
+          position: absolute;
+          top: 16px;
+          right: 16px;
+          display: flex;
+          gap: 8px;
+        "
+      >
+        <img
+          id="lang-pt"
+          src="images/pt-flag.png"
+          alt="Português"
+          class="active"
+        />
+        <img id="lang-en" src="images/en-flag.png" alt="English" />
+      </div>
+
       <div class="half top">
         <img src="images/acf-logo.png" alt="ACF Logo" class="acf-logo" />
-
         <button id="stock-btn">Ver Stock Algarve Classic Festival</button>
       </div>
       <div class="half bottom">
@@ -21,7 +39,6 @@
           alt="TRASSU Logo"
           class="trassu-logo"
         />
-
         <button id="start-btn">Começar Quiz</button>
       </div>
     </div>
