@@ -70,6 +70,30 @@ li {
   margin-bottom: 50px;
 }
 
+/* LANGUAGE TOGGLE */
+.language-toggle img {
+  width: 60px;
+  height: 60px;
+  cursor: pointer;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transition: border 0.2s ease;
+}
+
+.language-toggle img.active {
+  border-color: var(--green-dark);
+}
+
+/* Opcional: espaçamento entre bandeiras já definido inline, mas podes fazer aqui também */
+.language-toggle {
+  display: flex;
+  gap: 8px;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 100;
+}
+
 /* STOCK GRID */
 #stock-grid {
   display: grid;
