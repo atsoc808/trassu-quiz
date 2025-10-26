@@ -73,7 +73,7 @@ li {
 /* STOCK GRID */
 #stock-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 4rem;
   padding: 1rem;
   max-height: calc(100vh - 80px);
@@ -242,14 +242,14 @@ li {
 .feedback-bubble {
   position: absolute;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, 0) scale(1);
   background: rgba(0, 0, 0, 0.85);
   color: #fff;
   padding: 10px 16px;
   border-radius: 999px;
   font-weight: 700;
   opacity: 0;
-  animation: floatUpFade 1.2s ease forwards;
+  transition: all 0.8s ease-out;
 }
 .feedback-small {
   font-size: 0.95rem;
