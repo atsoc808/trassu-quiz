@@ -160,9 +160,15 @@ function showFeedbackBubble(lines = [], topOffsetPx = 180) {
     .join("");
   feedbackLayer.appendChild(wrapper);
   // Remove after animation
+ setTimeout(() => {
+  // animação de fade out + slight float up
+  wrapper.style.transition = "all 0.8s ease-out";
+  wrapper.style.opacity = "0";
+  wrapper.style.transform = "translate(-50%, -70%) scale(0.9)";
   setTimeout(() => {
     wrapper.remove();
-  }, feedbackVisibleTime);
+  }, 800);
+}, feedbackVisibleTime); // <- usa a variável de configuração
 }
 
 /* ========= QUIZ ========= */
