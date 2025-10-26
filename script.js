@@ -1,6 +1,6 @@
 /* ========= CONFIG ========= */
 const totalTimePerQuestion = 20; // seconds — altera aqui quando quiseres
-const feedbackDelay = 2000; // tempo (ms) para mostrar feedback antes de próxima pergunta
+const feedbackDelay = 2500; // tempo (ms) para mostrar feedback antes de próxima pergunta
 const feedbackVisibleTime = 2000;  // quanto tempo o popup fica visível (ms)
 
 /* ========= STOCK ========= */
