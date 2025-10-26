@@ -1,7 +1,8 @@
 /* ========= CONFIG ========= */
 const totalTimePerQuestion = 20; // seconds — altera aqui quando quiseres
 const feedbackDelay = 2500; // tempo (ms) para mostrar feedback antes de próxima pergunta
-const feedbackVisibleTime = 2000;  // quanto tempo o popup fica visível (ms)
+const feedbackVisibleTime = 2500; // quanto tempo o popup fica visível (ms)
+const emailInactivityDelay = 60000; // 1 minuto em ms
 
 /* ========= STOCK ========= */
 const stockCars = [
@@ -11,7 +12,7 @@ const stockCars = [
   { name: "Mercedes-Benz 300 SL", img: "images/300SL.png" },
   { name: "Porsche 934", img: "images/934.png" },
   { name: "Formula 1", img: "images/F1.png" },
-  { name: "Ferrari F40", img: "images/F40.png" }, // Atenção: O F40 está duplicado, um com .jpg e outro com .png
+  { name: "Ferrari F40", img: "images/F40.png" },
   { name: "Porsche GT3 RS", img: "images/GT3RS.png" },
   { name: "Ford GT40", img: "images/GT40.png" },
   { name: "BMW M1", img: "images/M1.png" },
@@ -19,7 +20,7 @@ const stockCars = [
   { name: "Nissan R34 GT-R", img: "images/R34.png" },
   { name: "Toyota Supra", img: "images/Supra.png" },
   { name: "Alfa Romeo TZ2", img: "images/TZ2.png" },
-  { name: "Dodge Viper", img: "images/Viper.png" }
+  { name: "Dodge Viper", img: "images/Viper.png" },
 ];
 
 /* ========= QUIZ QUESTIONS ========= */
@@ -73,6 +74,7 @@ const questions = [
     answer: 2,
   },
 ];
+
 /* ========= STATE ========= */
 let currentQuestion = 0;
 let score = 0;
@@ -81,6 +83,7 @@ let correctAnswers = 0;
 let questionStartTs = 0;
 let timeoutIdForAutoAdvance = null;
 let colorChangeTimeouts = [];
+let emailInactivityTimeout = null; // nova variável para email popup
 
 /* ========= DOM ========= */
 const homeScreen = document.getElementById("home-screen");
@@ -123,12 +126,35 @@ document
   .getElementById("restart-btn")
   .addEventListener("click", () => location.reload());
 
+// Reset timer on user interaction with email popup
+playerNameInput.addEventListener("input", resetEmailInactivityTimer);
+playerEmailInput.addEventListener("input", resetEmailInactivityTimer);
+document
+  .getElementById("submit-email")
+  .addEventListener("click", resetEmailInactivityTimer);
+
 /* ========= UTIL ========= */
 function showScreen(screen) {
   [homeScreen, quizScreen, stockScreen, emailPopup, leaderboardScreen].forEach(
     (s) => s.classList.remove("active")
   );
   screen.classList.add("active");
+
+  // se o screen atual for emailPopup, inicia timer de inatividade
+  if (screen === emailPopup) {
+    resetEmailInactivityTimer();
+  } else {
+    // cancela timer se mudar para outro screen
+    if (emailInactivityTimeout) clearTimeout(emailInactivityTimeout);
+  }
+}
+
+/* Reset email inactivity timer */
+function resetEmailInactivityTimer() {
+  if (emailInactivityTimeout) clearTimeout(emailInactivityTimeout);
+  emailInactivityTimeout = setTimeout(() => {
+    showScreen(homeScreen);
+  }, emailInactivityDelay);
 }
 
 /* ========= STOCK UI ========= */
@@ -159,16 +185,21 @@ function showFeedbackBubble(lines = [], topOffsetPx = 180) {
     .map((l) => `<div class="feedback-line">${l}</div>`)
     .join("");
   feedbackLayer.appendChild(wrapper);
-  // Remove after animation
- setTimeout(() => {
-  // animação de fade out + slight float up
-  wrapper.style.transition = "all 0.8s ease-out";
-  wrapper.style.opacity = "0";
-  wrapper.style.transform = "translate(-50%, -70%) scale(0.9)";
+
+  // aparecer imediatamente
+  requestAnimationFrame(() => {
+    wrapper.style.opacity = "1";
+  });
+
+  // depois de feedbackVisibleTime, iniciar fade + float
   setTimeout(() => {
-    wrapper.remove();
-  }, 800);
-}, feedbackVisibleTime); // <- usa a variável de configuração
+    wrapper.style.opacity = "0";
+    wrapper.style.transform = "translate(-50%, -70px) scale(0.98)";
+    // remover após transição
+    setTimeout(() => {
+      wrapper.remove();
+    }, 800); // 0.8s = duração da transição
+  }, feedbackVisibleTime);
 }
 
 /* ========= QUIZ ========= */
@@ -270,11 +301,17 @@ function loadQuestion() {
 }
 
 function selectOption(selected) {
-  // cancel auto-advance timeout
+  // Cancel auto-advance timeout
   if (timeoutIdForAutoAdvance) {
     clearTimeout(timeoutIdForAutoAdvance);
     timeoutIdForAutoAdvance = null;
   }
+
+  // Parar barra de tempo
+  const computedWidth = getComputedStyle(timerFill).width; // pega a largura atual em px
+  timerFill.style.transition = "none"; // cancela animação
+  timerFill.style.width = computedWidth; // mantém barra no ponto atual
+
   colorChangeTimeouts.forEach((t) => clearTimeout(t));
   colorChangeTimeouts = [];
 
