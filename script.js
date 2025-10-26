@@ -1,6 +1,6 @@
 /* ========= CONFIG ========= */
-const totalTimePerQuestion = 15; // seconds — altera aqui quando quiseres
-const feedbackDelay = 1200; // tempo (ms) para mostrar feedback antes de próxima pergunta
+const totalTimePerQuestion = 20; // seconds — altera aqui quando quiseres
+const feedbackDelay = 2000; // tempo (ms) para mostrar feedback antes de próxima pergunta
 
 /* ========= STOCK ========= */
 const stockCars = [
@@ -31,12 +31,6 @@ const questions = [
     answer: 0,
   },
   {
-    img: "images/Pantera.png",
-    question: "A que país pertence a marca De Tomaso Pantera?",
-    options: ["Itália", "EUA", "França", "Inglaterra"],
-    answer: 0,
-  },
-  {
     img: "images/R34.png",
     question: "O Nissan R34 GT-R ficou muito famoso em que coleção de filmes?",
     options: [
@@ -45,12 +39,6 @@ const questions = [
       "Velocidade Furiosa (Fast & Furious)",
       "James Bond",
     ],
-    answer: 2,
-  },
-  {
-    img: "images/Viper.png",
-    question: "O Viper é um V10 fabricado por uma marca americana. Qual?",
-    options: ["Chevrolet", "Ford", "Dodge", "Tesla"],
     answer: 2,
   },
   {
@@ -73,13 +61,6 @@ const questions = [
   },
   {
     img: "images/F40.png",
-    question:
-      "O Ferrari F40 foi lançado para celebrar que aniversário da Ferrari?",
-    options: ["20 anos", "30 anos", "40 anos", "50 anos"],
-    answer: 2,
-  },
-  {
-    img: "images/F40.png",
     question: "Em que década foi lançado o Ferrari F40?",
     options: ["70's", "80's", "90's", "00's"],
     answer: 1,
@@ -91,7 +72,6 @@ const questions = [
     answer: 2,
   },
 ];
-
 /* ========= STATE ========= */
 let currentQuestion = 0;
 let score = 0;
