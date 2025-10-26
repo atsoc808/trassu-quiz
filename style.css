@@ -97,7 +97,7 @@ li {
 /* STOCK GRID */
 #stock-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 4rem;
   padding: 1rem;
   max-height: calc(100vh - 80px);
