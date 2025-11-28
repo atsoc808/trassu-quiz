@@ -19,18 +19,19 @@ const stockCars = [
   { name: "Custom Car - Order Yours!", img: "images/custom-car.png" },
   { name: "BMW 3.0 CSL", img: "images/3.0CSL.png" },
   { name: "Ferrari 296 GT3", img: "images/296GT3.png" },
-  { name: "Mercedes-Benz 300 SL", img: "images/300SL.png" },
+  /*{ name: "Mercedes-Benz 300 SL", img: "images/300SL.png" },*/
   { name: "Porsche 934", img: "images/934.png" },
   { name: "Formula 1", img: "images/F1.png" },
   { name: "Ferrari F40", img: "images/F40.png" },
   { name: "Porsche GT3 RS", img: "images/GT3RS.png" },
   { name: "Ford GT40", img: "images/GT40.png" },
-  { name: "BMW M1", img: "images/M1.png" },
+  { name: "BMW M1 Procar", img: "images/M1.png" },
   { name: "De Tomaso Pantera", img: "images/Pantera.png" },
   { name: "Nissan R34 GT-R", img: "images/R34.png" },
   { name: "Toyota Supra", img: "images/Supra.png" },
   { name: "Alfa Romeo TZ2", img: "images/TZ2.png" },
-  { name: "Dodge Viper", img: "images/Viper.png" },
+  /*{ name: "Dodge Viper", img: "images/Viper.png" },*/
+  { name: "Porsche 911", img: "images/911.png" },
 ];
 /* ========= LANGUAGE ========= */
 let currentLanguage = "pt"; // default
@@ -271,11 +272,11 @@ const stockBtn = document.getElementById("stock-btn");
 const textContent = {
   pt: {
     startQuiz: "Começar Quiz",
-    stock: "Ver Stock Algarve Classic Festival",
+    stock: "Ver Stock Estoril Endurance Festival",
   },
   en: {
     startQuiz: "Start Quiz",
-    stock: "See Algarve Classic Festival Stock",
+    stock: "See Estoril ClaEndurance Festival Stock",
   },
 };
 
