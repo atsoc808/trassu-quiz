@@ -276,7 +276,7 @@ const textContent = {
   },
   en: {
     startQuiz: "Start Quiz",
-    stock: "See Estoril ClaEndurance Festival Stock",
+    stock: "See Estoril Endurance Festival Stock",
   },
 };
 
