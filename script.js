@@ -31,7 +31,7 @@ const stockCars = [
   /*{ name: "Toyota Supra", img: "images/Supra.png" },*/
   /*{ name: "Alfa Romeo TZ2", img: "images/TZ2.png" },*/
   { name: "Dodge Viper", img: "images/Viper.png" },
-  { name: "Porsche 911", img: "images/911.png" },
+  /*{ name: "Porsche 911", img: "images/911.png" },*/
 ];
 /* ========= LANGUAGE ========= */
 let currentLanguage = "pt"; // default
