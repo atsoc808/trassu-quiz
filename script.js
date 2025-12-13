@@ -23,15 +23,30 @@ const stockCars = [
   { name: "Porsche 934", img: "images/934.png" },
   { name: "Formula 1", img: "images/F1.png" },
   { name: "Ferrari F40", img: "images/F40.png" },
+  { name: "Ferrari F50", img: "images/F50.png" },
   { name: "Porsche GT3 RS", img: "images/GT3RS.png" },
-  /*{ name: "Ford GT40", img: "images/GT40.png" },*/
-  /*{ name: "BMW M1 Procar", img: "images/M1.png" },*/
+  { name: "Ford GT40", img: "images/GT40.png" },
+  { name: "BMW M1 Procar", img: "images/M1.png" },
   { name: "De Tomaso Pantera", img: "images/Pantera.png" },
-  { name: "Nissan R34 GT-R", img: "images/R34.png" },
-  /*{ name: "Toyota Supra", img: "images/Supra.png" },*/
-  /*{ name: "Alfa Romeo TZ2", img: "images/TZ2.png" },*/
+  { name: "Nissan Skyline GT-R", img: "images/R34.png" },
+  { name: "Toyota Supra", img: "images/Supra.png" },
+  { name: "Alfa Romeo TZ2", img: "images/TZ2.png" },
   { name: "Dodge Viper", img: "images/Viper.png" },
-  /*{ name: "Porsche 911", img: "images/911.png" },*/
+  { name: "Porsche 911", img: "images/911.png" },
+  { name: "Porsche 911 RS", img: "images/911RS.png" },
+  { name: "Porsche 935/78 &quotMoby Dick&quot", img: "images/MobyDick.png" },
+  { name: "Porsche 959", img: "images/959.png" },
+  { name: "Shelby Cobra Daytona Coupé", img: "images/Daytona.png" },
+  { name: "Jaguar E-Type", img: "images/e-type.png" },
+  { name: "Lamborghini Huracán Super Trofeo", img: "images/STO.png" },
+  { name: "Lotus Seven S4", img: "images/SevenS4.png" },
+  { name: "Chevrolet Corvette Stingray", img: "images/Stingray.png" },
+  { name: "Pagani Zonda Revolución", img: "images/Zonda.png" },
+  { name: "Fiat 500", img: "images/Fiat500.png" },
+  { name: "BMW M440i", img: "images/M440i.png" },
+  { name: "Mercedes AMG GT", img: "images/AMG-GT.png" },
+  { name: "Land Rover Defender", img: "images/Defender.png" },
+  { name: "Volkswagen Golf Mk2", img: "images/GolfMk2.png" },
 ];
 /* ========= LANGUAGE ========= */
 let currentLanguage = "pt"; // default
