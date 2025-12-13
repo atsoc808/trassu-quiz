@@ -68,6 +68,7 @@ li {
 .trassu-logo {
   width: 20%;
   margin-bottom: 50px;
+  fill: var(--green-dark);
 }
 
 /* LANGUAGE TOGGLE */
